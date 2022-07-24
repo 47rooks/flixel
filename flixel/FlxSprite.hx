@@ -201,8 +201,8 @@ class FlxSprite extends FlxObject
 	public var bakedRotationAngle(default, null):Float = 0;
 
 	/**
-	 * Set alpha to a number between `0` and `1` to change the opacity of the sprite.
-	 @see https://snippets.haxeflixel.com/sprites/alpha/
+		* Set alpha to a number between `0` and `1` to change the opacity of the sprite.
+		@see https://snippets.haxeflixel.com/sprites/alpha/
 	 */
 	public var alpha(default, set):Float = 1.0;
 
@@ -332,7 +332,7 @@ class FlxSprite extends FlxObject
 	 */
 	@:noCompletion
 	var _halfSize:FlxPoint;
-	
+
 	/**
 	 *  Helper variable
 	 */
@@ -776,15 +776,26 @@ class FlxSprite extends FlxObject
 
 		for (camera in cameras)
 		{
-			if (!camera.visible || !camera.exists || !isOnScreen(camera))
+			if (!camera.visible
+				|| !camera.exists
+				|| !isOnScreen(camera)
+				|| (FlxG.renderingWindow != null && !FlxG.renderingWindow.cameras.list.contains(camera))
+				|| (FlxG.renderingWindow == null && !FlxG.cameras.list.contains(camera)))
+			{
+				// trace('${FlxG.renderingWindow == null ? "null" : FlxG.renderingWindow.windowName} skipping camera');
 				continue;
+			}
 
 			getScreenPosition(_point, camera).subtractPoint(offset);
 
 			if (isSimpleRender(camera))
+			{
 				drawSimple(camera);
+			}
 			else
+			{
 				drawComplex(camera);
+			}
 
 			#if FLX_DEBUG
 			FlxBasic.visibleCount++;
@@ -830,7 +841,15 @@ class FlxSprite extends FlxObject
 			_matrix.tx = Math.floor(_matrix.tx);
 			_matrix.ty = Math.floor(_matrix.ty);
 		}
-
+		// trace('win=${FlxG.renderingWindow == null ? "main" : FlxG.renderingWindow.windowName}');
+		// trace('    thiswindowscamera=${FlxG.renderingWindow != null ? FlxG.renderingWindow.cameras.list.contains(camera) : FlxG.cameras.list.contains(camera)}');
+		// trace('    _frame=${_frame}');
+		// trace('    framePixels=${framePixels}');
+		// trace('    _matrix=${_matrix}');
+		// trace('    colorTransform=${colorTransform}');
+		// trace('    blend=${blend}');
+		// trace('    antialiasing=${antialiasing}');
+		// trace('    shader=${shader}');
 		camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shader);
 	}
 
@@ -1146,7 +1165,7 @@ class FlxSprite extends FlxObject
 	{
 		if (camera == null)
 			camera = FlxG.camera;
-		
+
 		return camera.containsRect(getScreenBounds(_rect, camera));
 	}
 
@@ -1190,11 +1209,11 @@ class FlxSprite extends FlxObject
 	{
 		if (newRect == null)
 			newRect = FlxRect.get();
-		
+
 		newRect.set(x, y, width, height);
 		return newRect.getRotatedBounds(angle, origin, newRect);
 	}
-	
+
 	/**
 	 * Calculates the smallest globally aligned bounding box that encompasses this sprite's graphic as it
 	 * would be displayed. Honors scrollFactor, rotation, scale, offset and origin.
@@ -1207,10 +1226,10 @@ class FlxSprite extends FlxObject
 	{
 		if (newRect == null)
 			newRect = FlxRect.get();
-		
+
 		if (camera == null)
 			camera = FlxG.camera;
-		
+
 		newRect.setPosition(x, y);
 		if (pixelPerfectPosition)
 			newRect.floor();
@@ -1222,7 +1241,7 @@ class FlxSprite extends FlxObject
 		newRect.setSize(frameWidth * Math.abs(scale.x), frameHeight * Math.abs(scale.y));
 		return newRect.getRotatedBounds(angle, _scaledOrigin, newRect);
 	}
-	
+
 	/**
 	 * Set how a sprite flips when facing in a particular direction.
 	 *

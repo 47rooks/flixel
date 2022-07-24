@@ -4,11 +4,11 @@ package flixel.graphics.tile;
 import flixel.FlxCamera;
 import flixel.graphics.frames.FlxFrame;
 import flixel.graphics.tile.FlxDrawBaseItem.FlxDrawItemType;
-import flixel.system.FlxAssets.FlxShader;
 import flixel.math.FlxMatrix;
-import openfl.geom.ColorTransform;
-import openfl.display.ShaderParameter;
+import flixel.system.FlxAssets.FlxShader;
 import openfl.Vector;
+import openfl.display.ShaderParameter;
+import openfl.geom.ColorTransform;
 
 class FlxDrawQuadsItem extends FlxDrawBaseItem<FlxDrawQuadsItem>
 {
@@ -110,6 +110,10 @@ class FlxDrawQuadsItem extends FlxDrawBaseItem<FlxDrawQuadsItem>
 	}
 
 	#if !flash
+	// TODO - This is a bad hack - refer notes in
+	//        FlxWindow and fix this properly
+
+	@:access(openfl.display.Shader.__context)
 	override public function render(camera:FlxCamera):Void
 	{
 		if (rects.length == 0)
@@ -128,6 +132,24 @@ class FlxDrawQuadsItem extends FlxDrawBaseItem<FlxDrawQuadsItem>
 
 		setParameterValue(shader.hasTransform, true);
 		setParameterValue(shader.hasColorTransform, colored || hasColorOffsets);
+		if (FlxG.renderingWindow != null)
+		{
+			var ctxSameAsCurrent = FlxG.renderingWindow.stage.context3D == shader.__context;
+			// trace('shader context for (${graphics.bitmap.width}, ${graphics.bitmap.height}) matches rendering window(${FlxG.renderingWindow.windowName})=${ctxSameAsCurrent}');
+			if (!ctxSameAsCurrent)
+			{
+				shader.__context = FlxG.renderingWindow.stage.context3D;
+			}
+		}
+		else
+		{
+			var ctxSameAsCurrent = FlxG.game.stage.context3D == shader.__context;
+			// trace('shader context  for (${graphics.bitmap.width}, ${graphics.bitmap.height}) matches rendering window (main)=${ctxSameAsCurrent}');
+			if (!ctxSameAsCurrent)
+			{
+				shader.__context = FlxG.game.stage.context3D;
+			}
+		}
 
 		#if (openfl > "8.7.0")
 		camera.canvas.graphics.overrideBlendMode(blend);

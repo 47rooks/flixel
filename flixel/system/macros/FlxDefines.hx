@@ -26,6 +26,7 @@ private enum UserDefines
 	FLX_4_LEGACY_COLLISION;
 	/* Simplifies FlxPoint but can increase GC frequency */
 	FLX_NO_POINT_POOL;
+	FLX_MULTI_WINDOW;
 }
 
 /**

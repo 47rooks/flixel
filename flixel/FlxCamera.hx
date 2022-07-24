@@ -21,9 +21,9 @@ import flixel.util.FlxAxes;
 import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
 import flixel.util.FlxSpriteUtil;
+import openfl.Vector;
 import openfl.display.BlendMode;
 import openfl.filters.BitmapFilter;
-import openfl.Vector;
 
 using flixel.util.FlxColorTransformUtil;
 
@@ -60,7 +60,7 @@ class FlxCamera extends FlxBasic
 	 */
 	@:deprecated("`FlxCamera.defaultCameras` is deprecated, use `FlxG.cameras.setDefaultDrawTarget` instead")
 	public static var defaultCameras(get, set):Array<FlxCamera>;
-	
+
 	/**
 	 * Used behind-the-scenes during the draw phase so that members use the same default
 	 * cameras as their parent.
@@ -71,6 +71,7 @@ class FlxCamera extends FlxBasic
 	@:allow(flixel.FlxBasic.get_cameras)
 	@:allow(flixel.FlxBasic.get_camera)
 	@:allow(flixel.system.frontEnds.CameraFrontEnd)
+	@:allow(flixel.system.frontEnds.CameraFrontEndWin)
 	@:allow(flixel.group.FlxTypedGroup.draw)
 	static var _defaultCameras:Array<FlxCamera>;
 
@@ -640,6 +641,7 @@ class FlxCamera extends FlxBasic
 		return itemToReturn;
 	}
 
+	@:allow(flixel.system.frontEnds.CameraFrontEndWin)
 	@:allow(flixel.system.frontEnds.CameraFrontEnd)
 	function clearDrawStack():Void
 	{
@@ -673,6 +675,7 @@ class FlxCamera extends FlxBasic
 		_headTriangles = null;
 	}
 
+	@:allow(flixel.system.frontEnds.CameraFrontEndWin)
 	@:allow(flixel.system.frontEnds.CameraFrontEnd)
 	function render():Void
 	{
@@ -1562,6 +1565,7 @@ class FlxCamera extends FlxBasic
 	/**
 	 * Internal helper function, handles the actual drawing of all the special effects.
 	 */
+	@:allow(flixel.system.frontEnds.CameraFrontEndWin)
 	@:allow(flixel.system.frontEnds.CameraFrontEnd)
 	function drawFX():Void
 	{
@@ -1598,6 +1602,7 @@ class FlxCamera extends FlxBasic
 		}
 	}
 
+	@:allow(flixel.system.frontEnds.CameraFrontEndWin)
 	@:allow(flixel.system.frontEnds.CameraFrontEnd)
 	function checkResize():Void
 	{
@@ -1741,7 +1746,7 @@ class FlxCamera extends FlxBasic
 		updateFlashOffset();
 		setScale(scaleX, scaleY);
 	}
-	
+
 	/**
 	 * The size and position of this camera's screen
 	 * @since 4.11.0
@@ -1750,10 +1755,10 @@ class FlxCamera extends FlxBasic
 	{
 		if (rect == null)
 			rect = FlxRect.get();
-		
+
 		return rect.set(viewOffsetX, viewOffsetY, viewOffsetWidth - viewOffsetX, viewOffsetHeight - viewOffsetY);
 	}
-	
+
 	/**
 	 * Checks whether this camera contains a given point or rectangle, in
 	 * screen coordinates.
@@ -1761,20 +1766,18 @@ class FlxCamera extends FlxBasic
 	 */
 	public inline function containsPoint(point:FlxPoint, width:Float = 0, height:Float = 0):Bool
 	{
-		var contained = (point.x + width > viewOffsetX) && (point.x < viewOffsetWidth)
-			&& (point.y + height > viewOffsetY) && (point.y < viewOffsetHeight);
+		var contained = (point.x + width > viewOffsetX) && (point.x < viewOffsetWidth) && (point.y + height > viewOffsetY) && (point.y < viewOffsetHeight);
 		point.putWeak();
 		return contained;
 	}
-	
+
 	/**
 	 * Checks whether this camera contains a given rectangle, in screen coordinates.
 	 * @since 4.11.0
 	 */
 	public inline function containsRect(rect:FlxRect):Bool
 	{
-		var contained = (rect.right > viewOffsetX) && (rect.x < viewOffsetWidth)
-			&& (rect.bottom > viewOffsetY) && (rect.y < viewOffsetHeight);
+		var contained = (rect.right > viewOffsetX) && (rect.x < viewOffsetWidth) && (rect.bottom > viewOffsetY) && (rect.y < viewOffsetHeight);
 		rect.putWeak();
 		return contained;
 	}
@@ -1922,12 +1925,12 @@ class FlxCamera extends FlxBasic
 		viewOffsetHeight = height - viewOffsetY;
 		viewHeight = height - 2 * viewOffsetY;
 	}
-	
+
 	static inline function get_defaultCameras():Array<FlxCamera>
 	{
 		return _defaultCameras;
 	}
-	
+
 	static inline function set_defaultCameras(value:Array<FlxCamera>):Array<FlxCamera>
 	{
 		return _defaultCameras = value;

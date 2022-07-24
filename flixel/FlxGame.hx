@@ -722,47 +722,59 @@ class FlxGame extends Sprite
 	 */
 	function update():Void
 	{
-		if (!_state.active || !_state.exists)
-			return;
+		if (FlxG.renderingWindow == null)
+		{
+			if (!_state.active || !_state.exists)
+				return;
 
-		if (_state != _requestedState)
-			switchState();
+			if (_state != _requestedState)
+				switchState();
 
-		#if FLX_DEBUG
-		if (FlxG.debugger.visible)
-			ticks = getTicks();
-		#end
+			#if FLX_DEBUG
+			if (FlxG.debugger.visible)
+				ticks = getTicks();
+			#end
 
-		updateElapsed();
+			updateElapsed();
 
-		FlxG.signals.preUpdate.dispatch();
+			FlxG.signals.preUpdate.dispatch();
 
-		updateInput();
+			updateInput();
 
-		#if FLX_POST_PROCESS
-		if (postProcesses[0] != null)
-			postProcesses[0].update(FlxG.elapsed);
-		#end
+			#if FLX_POST_PROCESS
+			if (postProcesses[0] != null)
+				postProcesses[0].update(FlxG.elapsed);
+			#end
 
-		#if FLX_SOUND_SYSTEM
-		FlxG.sound.update(FlxG.elapsed);
-		#end
-		FlxG.plugins.update(FlxG.elapsed);
+			#if FLX_SOUND_SYSTEM
+			FlxG.sound.update(FlxG.elapsed);
+			#end
+			FlxG.plugins.update(FlxG.elapsed);
 
-		_state.tryUpdate(FlxG.elapsed);
+			_state.tryUpdate(FlxG.elapsed);
+		}
+		if (FlxG.renderingWindow != null)
+		{
+			FlxG.renderingWindow.cameras.update(FlxG.elapsed);
+		}
+		else
+		{
+			FlxG.cameras.update(FlxG.elapsed);
+		}
+		if (FlxG.renderingWindow == null)
+		{
+			FlxG.signals.postUpdate.dispatch();
 
-		FlxG.cameras.update(FlxG.elapsed);
-		FlxG.signals.postUpdate.dispatch();
+			#if FLX_DEBUG
+			debugger.stats.flixelUpdate(getTicks() - ticks);
+			#end
 
-		#if FLX_DEBUG
-		debugger.stats.flixelUpdate(getTicks() - ticks);
-		#end
+			#if FLX_POINTER_INPUT
+			FlxArrayUtil.clearArray(FlxG.swipes);
+			#end
 
-		#if FLX_POINTER_INPUT
-		FlxArrayUtil.clearArray(FlxG.swipes);
-		#end
-
-		filters = filtersEnabled ? _filters : null;
+			filters = filtersEnabled ? _filters : null;
+		}
 	}
 
 	function updateElapsed():Void
@@ -844,6 +856,7 @@ class FlxGame extends Sprite
 	/**
 	 * Goes through the game state and draws all the game objects and special effects.
 	 */
+	@:allow(flixel.FlxWindow)
 	function draw():Void
 	{
 		if (!_state.visible || !_state.exists)
@@ -864,22 +877,43 @@ class FlxGame extends Sprite
 			postProcesses[0].capture();
 		#end
 
-		FlxG.cameras.lock();
+		if (FlxG.renderingWindow != null)
+		{
+			FlxG.renderingWindow.cameras.lock();
+		}
+		else
+		{
+			FlxG.cameras.lock();
 
-		FlxG.plugins.draw();
+			FlxG.plugins.draw();
+		}
 
 		_state.draw();
 
 		if (FlxG.renderTile)
 		{
-			FlxG.cameras.render();
+			if (FlxG.renderingWindow != null)
+			{
+				FlxG.renderingWindow.cameras.render();
+			}
+			else
+			{
+				FlxG.cameras.render();
+			}
 
 			#if FLX_DEBUG
 			debugger.stats.drawCalls(FlxDrawBaseItem.drawCalls);
 			#end
 		}
 
-		FlxG.cameras.unlock();
+		if (FlxG.renderingWindow != null)
+		{
+			FlxG.renderingWindow.cameras.unlock();
+		}
+		else
+		{
+			FlxG.cameras.unlock();
+		}
 
 		FlxG.signals.postDraw.dispatch();
 
