@@ -65,7 +65,6 @@ class CameraFrontEndWin
 	 * @param	NewCamera         The camera you want to add.
 	 * @param	DefaultDrawTarget Whether to add the camera to the list of default draw targets. If false, 
 	 *                            `FlxBasics` will not render to it unless you add it to their `cameras` list.
-	 * @return	This FlxCamera instance.
 	 */
 	public function add<T:FlxCamera>(NewCamera:T, DefaultDrawTarget:Bool = true):T
 	{
@@ -151,10 +150,15 @@ class CameraFrontEndWin
 		while (list.length > 0)
 			remove(list[0]);
 
-		if (NewCamera == null)
-			NewCamera = new FlxCamera(0, 0, FlxG.width, FlxG.height);
+		// I think we need to have special handling for default during reset. Again this is a good reason not to have default cameras on windows.
+		// I think we should reset window camera front to have a default camera the size of the window and remove all others that it has. This is consistent with the main one.
 
-		FlxG.camera = add(NewCamera);
+		if (NewCamera == null)
+			// FIXME - Same case - this must only be used if the we are resetting the window for this front end
+			// FlxCamera._defaultCameras = defaults; // Dropped based on comments in FlxCamera about this being deprecated anyway
+			// Probably need to add window equiv of FlxG.cameras.setDefaultDrawTarget
+
+			FlxG.camera = add(NewCamera);
 		NewCamera.ID = 0;
 
 		// FIXME - Same case - this must only be used if the we are resetting the window for this front end
@@ -218,6 +222,7 @@ class CameraFrontEndWin
 		// FIXME consider implications - must only be copied into the global when rendering the correct
 		// window
 		// FlxCamera._defaultCameras = defaults; // Removed as deprecated - consider FlxG.cameras.setDefaultDrawTarget
+		// Need special handling for window front end so that we don't take up the global default cameras
 		_window = window;
 	}
 

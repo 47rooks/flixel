@@ -20,10 +20,10 @@ class CameraFrontEnd
 	 * Do not edit directly, use `add` and `remove` instead.
 	 */
 	public var list(default, null):Array<FlxCamera> = [];
-	
+
 	/**
-	 * Array listing all cameras marked as default draw targets, `FlxBasics` with no
-	 *`cameras` set will render to them.
+		* Array listing all cameras marked as default draw targets, `FlxBasics` with no
+		*`cameras` set will render to them.
 	 */
 	var defaults:Array<FlxCamera> = [];
 
@@ -53,7 +53,12 @@ class CameraFrontEnd
 	var _cameraRect:Rectangle = new Rectangle();
 
 	/**
-	 * Add a new camera object to the game.
+	 * The window this camera front end is hosted in.
+	 */
+	var _window:FlxWindow;
+
+	/**
+	 * Add a new camera object to the game or window.
 	 * Handy for PiP, split-screen, etc.
 	 * @see flixel.FlxBasic.cameras
 	 *
@@ -64,12 +69,19 @@ class CameraFrontEnd
 	 */
 	public function add<T:FlxCamera>(NewCamera:T, DefaultDrawTarget:Bool = true):T
 	{
-		FlxG.game.addChildAt(NewCamera.flashSprite, FlxG.game.getChildIndex(FlxG.game._inputContainer));
-		
+		if (_window != null)
+		{
+			_window.addChildAt(NewCamera.flashSprite, _window.getChildIndex(_window._inputContainer));
+		}
+		else
+		{
+			FlxG.game.addChildAt(NewCamera.flashSprite, FlxG.game.getChildIndex(FlxG.game._inputContainer));
+		}
+
 		list.push(NewCamera);
 		if (DefaultDrawTarget)
 			defaults.push(NewCamera);
-		
+
 		NewCamera.ID = list.length - 1;
 		cameraAdded.dispatch(NewCamera);
 		return NewCamera;
@@ -109,7 +121,7 @@ class CameraFrontEnd
 
 		cameraRemoved.dispatch(Camera);
 	}
-	
+
 	/**
 	 * If set to true, the camera is listed as a default draw target, meaning `FlxBasics`
 	 * render to the specified camera if the `FlxBasic` has a null `cameras` value.
@@ -126,9 +138,9 @@ class CameraFrontEnd
 			FlxG.log.warn("FlxG.cameras.setDefaultDrawTarget(): The specified camera is not a part of the game.");
 			return;
 		}
-		
+
 		var index = defaults.indexOf(camera);
-		
+
 		if (value && index == -1)
 			defaults.push(camera);
 		else if (!value)
@@ -146,13 +158,28 @@ class CameraFrontEnd
 		while (list.length > 0)
 			remove(list[0]);
 
-		if (NewCamera == null)
-			NewCamera = new FlxCamera(0, 0, FlxG.width, FlxG.height);
+		if (_window != null)
+		{
+			if (NewCamera == null)
+			{
+				NewCamera = new FlxCamera(0, 0, _window.windowWidth, _window.windowHeight);
+			}
 
-		FlxG.camera = add(NewCamera);
-		NewCamera.ID = 0;
+			_window.addCamera(NewCamera);
+			NewCamera.ID = 0;
+		}
+		else
+		{
+			if (NewCamera == null)
+			{
+				NewCamera = new FlxCamera(0, 0, FlxG.width, FlxG.height);
+			}
 
-		FlxCamera._defaultCameras = defaults;
+			FlxG.camera = add(NewCamera);
+			NewCamera.ID = 0;
+
+			FlxCamera._defaultCameras = defaults;
+		}
 	}
 
 	/**
@@ -206,9 +233,17 @@ class CameraFrontEnd
 	}
 
 	@:allow(flixel.FlxG)
-	function new()
+	@:allow(flixel.FlxWindow)
+	function new(?window:FlxWindow = null)
 	{
-		FlxCamera._defaultCameras = defaults;
+		if (window != null)
+		{
+			_window = window;
+		}
+		else
+		{
+			FlxCamera._defaultCameras = defaults;
+		}
 	}
 
 	/**
@@ -317,6 +352,7 @@ class CameraFrontEnd
 	 * Resizes and moves cameras when the game resizes (onResize signal).
 	 */
 	@:allow(flixel.FlxGame)
+	@:allow(flixel.FlxWindow)
 	function resize():Void
 	{
 		for (camera in list)
