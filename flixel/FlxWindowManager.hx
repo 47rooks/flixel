@@ -15,10 +15,10 @@ class FlxWindowManager
 	 * Add a new window object to the game.
 	 * @see flixel.FlxWindow
 	 *
-	 * @param	NewWindow         The camera you want to add.
+	 * @param	newWindow         The camera you want to add.
 	 * @return	This FlxWindow instance.
 	 */
-	public function add<T:FlxWindow>(NewWindow:T):T
+	public function add<T:FlxWindow>(newWindow:T):T
 	{
 		if (!_cleanupCbkRegistered)
 		{
@@ -26,12 +26,12 @@ class FlxWindowManager
 			_cleanupCbkRegistered = true;
 		}
 
-		NewWindow._win.stage.addChild(NewWindow);
+		newWindow.window.stage.addChild(newWindow);
 
-		list.push(NewWindow);
+		list.push(newWindow);
 
-		// NewWindow.ID = list.length - 1;
-		return NewWindow;
+		// newWindow.ID = list.length - 1;
+		return newWindow;
 	}
 
 	function get_numWindows()
@@ -42,29 +42,27 @@ class FlxWindowManager
 	/**
 	 * Remove a camera from the game.
 	 *
-	 * @param   Window    The camera you want to remove.
-	 * @param   Destroy   Whether to call destroy() on the camera, default value is true.
+	 * @param   window    The window you want to remove.
 	 */
-	public function remove(Window:FlxWindow):Void
+	public function remove(window:FlxWindow, destroy:Bool = true):Void
 	{
-		var index:Int = list.indexOf(Window);
+		var index:Int = list.indexOf(window);
 		trace('index=${index}');
-		if (Window != null && index != -1)
+		if (window != null && index != -1)
 		{
 			trace('about to remove window');
-			Window._win.stage.removeChild(Window);
+			window.window.stage.removeChild(window);
 			trace('removing window from list');
-			list.remove(Window);
+			list.remove(window);
 		}
 		else
 		{
-			FlxG.log.warn("FlxG.windows.remove(): The window you attempted to remove is not a part of the game.");
+			FlxG.log.warn("FlxWindowManager.remove(): The window you attempted to remove is unknown.");
 			return;
 		}
 
-		// FIXME - not sure what this should be yet
-		// if (Destroy)
-		// 	Window.destroy();
+		if (destroy)
+			window.destroy();
 	}
 
 	@:allow(flixel.FlxG)
@@ -80,7 +78,7 @@ class FlxWindowManager
 	{
 		while (list.length > 0)
 		{
-			list[0]._win.close();
+			list[0].window.close();
 		}
 	}
 }
