@@ -4,8 +4,6 @@ import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.graphics.tile.FlxDrawBaseItem;
 import flixel.system.frontEnds.CameraFrontEnd;
-import flixel.system.scaleModes.BaseScaleMode;
-import flixel.system.scaleModes.RatioScaleMode;
 import flixel.util.FlxColor;
 import openfl.display.DisplayObjectRenderer;
 import openfl.display.OpenGLRenderer;
