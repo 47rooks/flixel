@@ -71,7 +71,6 @@ class FlxCamera extends FlxBasic
 	@:allow(flixel.FlxBasic.get_cameras)
 	@:allow(flixel.FlxBasic.get_camera)
 	@:allow(flixel.system.frontEnds.CameraFrontEnd)
-	@:allow(flixel.system.frontEnds.CameraFrontEndWin)
 	@:allow(flixel.group.FlxTypedGroup.draw)
 	static var _defaultCameras:Array<FlxCamera>;
 

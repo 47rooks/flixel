@@ -4,6 +4,8 @@ import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.graphics.tile.FlxDrawBaseItem;
 import flixel.system.frontEnds.CameraFrontEnd;
+import flixel.system.scaleModes.BaseScaleMode;
+import flixel.system.scaleModes.RatioScaleMode;
 import flixel.util.FlxColor;
 import openfl.display.DisplayObjectRenderer;
 import openfl.display.OpenGLRenderer;
@@ -17,27 +19,12 @@ import openfl.events.Event;
 	TODO
 
 	IMPORTANT - 7 (RVW), 6, 8 (RSLVD), 18 (RSLVD)
-	6. resize on FlxWindows doesn't work - camera doesn't resize
-
-	7. putting cameras from two windows on a sprite results in it rendering to the second one only
-		The problem is that the texture is rendered using a shader via FlxDrawQuadsItem.render. The shader has a Context3D object which is specific to the window. So this needs to change for any sprite rendering to multiple windows, as the render switches from window to window. This requires access to the __context field of the openfl.display.Shader class. This a hack. The right way is probably to create a completely separate shader for each window rendering the sprite.
-
-		This turns out to be a serious issue. The problem is that the shader is coming from the FlxSprite.graphic.shader which is only initialized with a Context3D object when first rendered. There is a TODO in the OpenGLRenderer about switching GL contexts but it remains unimplemented. It is therefore possible the hack is not that far off. Seek input in PR.
-	8. focus is lost on the first window when clicking on others. Bringing all windows to front is not easy without causing loops in the focus() behaviour. When any window is brought into focus, all should be brought to front and the main window be given focus - this may change if a window should have focus, but will do for now.
-
-		Lime cannot do this. SDL has a raise window function - SDL_RaiseWindow - but it gives focus to the window too. Apparently there was a request to add a flag to this function but as of 2016 it was not implemeneted.
-
-		For now, this will be a manual exercise for the user.
 
 	9. When a non-main window is closed should all its cameras be removed from all sprites in the game ?
 	10. onClose() does not cleanup any FlxSprite which has cameras from the window in their list of cameras.
 		a. what happens if a camera goes away that is referenced by a sprite. I bet it doesn't go away because of the reference - but it cannot draw anywhere - does that cause issues ?
 	15. cursor should be visible in all windows - or at least be able to be - not all at once but whichever window the mouse is over
-	17. If the camera.bgcolor in different windows does not match then a sprite drawn to both windows may be invisible even with the context3d switching hack. Basically I think a new shader has to be created.
-	18. should FlxG.scaleMode.scale be per window ? My guess is all windows should scale the same way.
-		See if any reviewer says anything but this sounds ok.
-		
-	19. Do default cameras need to be modified so that a default camera could be in any window ? Or should all FlxWindow cameras be non-default ? The latter is probably easier but might not be what people expect
+
 	20. Remove all @:access metadata and if necessary replace within flixel with @:allow. If not possible we have a problem.
 	21. How to test and what tests to add.
 	22. How can a secondary window receive focus and process input ? When it gets focus the main window is paused.
@@ -46,6 +33,28 @@ import openfl.events.Event;
 	24. When you access the lime.ui.window in FlxG you go FlxG.game.stage.window. In FlxWindow it should be the same.
 
 	Resolved
+	6. resize on FlxWindows doesn't work - camera doesn't resize
+		Camera resize is tied to game main window resize via FlxG globals including the game size. This needs to be fixed before window resize will be easy to implement. It is possible to hack it but that gets really ugly. Hopefully window resize is not required for secondary windows initially.
+
+	7. putting cameras from two windows on a sprite results in it rendering to the second one only
+		The problem is that the texture is rendered using a shader via FlxDrawQuadsItem.render. The shader has a Context3D object which is specific to the window. So this needs to change for any sprite rendering to multiple windows, as the render switches from window to window. This requires access to the __context field of the openfl.display.Shader class. This a hack. The right way is probably to create a completely separate shader for each window rendering the sprite.
+
+		This turns out to be a serious issue. The problem is that the shader is coming from the FlxSprite.graphic.shader which is only initialized with a Context3D object when first rendered. There is a TODO in the OpenGLRenderer about switching GL contexts but it remains unimplemented. It is therefore possible the hack is not that far off. Seek input in PR.
+
+	8. focus is lost on the first window when clicking on others. Bringing all windows to front is not easy without causing loops in the focus() behaviour. When any window is brought into focus, all should be brought to front and the main window be given focus - this may change if a window should have focus, but will do for now.
+
+		Lime cannot do this. SDL has a raise window function - SDL_RaiseWindow - but it gives focus to the window too. Apparently there was a request to add a flag to this function but as of 2016 it was not implemeneted.
+
+		For now, this will be a manual exercise for the user. This means the user basically has to restart the game actually.
+
+	19. Do default cameras need to be modified so that a default camera could be in any window ? Or should all FlxWindow cameras be non-default ? The latter is probably easier but might not be what people expect
+
+		All window cameras are non-default
+		
+	18. should FlxG.scaleMode.scale be per window ? My guess is all windows should scale the same way.
+		See if any reviewer says anything but this sounds ok.
+
+		See 25 below - due to the way things are wired up right now this is just plain hard to get to work properly. I think FlxG.scaleMode should be made to be per-window but that's additional work.
 
 	25. there is some problem with camera walls but I am not if it is due to the window mod.
 		ok so this is unexpected - when you create a camera wall it creates 4 tileblocks around the camera - fine. These are sprites and they are therefore on the default camera, but they are transparent. But if the window of the default camera is not big enough that the tiles can be visible they they get truncated or not displayed somehow. I don't know how yet. But my main window was narrow - 400 px. The walls were created about cameras in other wider windows. This resulted in just the left and part of the top and bottom of the walls rendering. This led to my blocks that I was bouncing around the windows being able to escape on the right sides or the top and bottom beyond 400px. Now I have to figure out how to fix it but that's the basic issue.
@@ -138,7 +147,7 @@ class FlxWindow extends Sprite
 			maximized: false,
 			minimized: false,
 			parameters: {},
-			resizable: true,
+			resizable: false,
 			title: windowName,
 			width: windowWidth,
 			x: null,
@@ -202,7 +211,6 @@ class FlxWindow extends Sprite
 		// stage.addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		// We need to listen for resize event which means new context
 		// it means that we need to recreate BitmapDatas of dumped tilesheets
-		addEventListener(Event.RESIZE, onResize);
 		stage.window.onClose.add(onClose, false, 0);
 
 		stage.addEventListener(Event.ENTER_FRAME, onEnterFrame);
@@ -228,7 +236,6 @@ class FlxWindow extends Sprite
 	{
 		removeEventListener(Event.DEACTIVATE, onFocusLost);
 		removeEventListener(Event.ACTIVATE, onFocus);
-		removeEventListener(Event.RESIZE, onResize);
 		stage.removeChild(_inputContainer);
 		FlxG.windows.remove(this);
 	}
@@ -241,16 +248,6 @@ class FlxWindow extends Sprite
 	function onFocusLost(_):Void
 	{
 		trace('focus lost on win ${windowName}');
-	}
-
-	function onResize(_):Void
-	{
-		// TODO this does not work correctly because cameras.resize() refers to FlxG attrs.
-		trace('resizing window to (${stage.stageWidth}, ${stage.stageHeight})');
-		windowWidth = stage.stageWidth;
-		windowHeight = stage.stageHeight;
-
-		cameras.resize();
 	}
 
 	public function destroy():Void
