@@ -781,8 +781,8 @@ class FlxSprite extends FlxObject
 				continue;
 			}
 			#if FLX_MULTI_WINDOW
-			if (FlxG.renderingWindow != null
-				&& !FlxG.renderingWindow.cameras.list.contains(camera)) || (FlxG.renderingWindow == null && !FlxG.cameras.list.contains(camera))
+			if ((FlxG.renderingWindow != null && !FlxG.renderingWindow.cameras.list.contains(camera))
+				|| (FlxG.renderingWindow == null && !FlxG.cameras.list.contains(camera)))
 			{
 				continue;
 			}
