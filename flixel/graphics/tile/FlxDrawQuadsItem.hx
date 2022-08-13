@@ -132,6 +132,7 @@ class FlxDrawQuadsItem extends FlxDrawBaseItem<FlxDrawQuadsItem>
 
 		setParameterValue(shader.hasTransform, true);
 		setParameterValue(shader.hasColorTransform, colored || hasColorOffsets);
+		#if FLX_MULTI_WINDOW
 		if (FlxG.renderingWindow != null)
 		{
 			var ctxSameAsCurrent = FlxG.renderingWindow.stage.context3D == shader.__context;
@@ -150,7 +151,9 @@ class FlxDrawQuadsItem extends FlxDrawBaseItem<FlxDrawQuadsItem>
 				shader.__context = FlxG.game.stage.context3D;
 			}
 		}
-
+		#else
+		shader.__context = FlxG.game.stage.context3D;
+		#end
 		#if (openfl > "8.7.0")
 		camera.canvas.graphics.overrideBlendMode(blend);
 		#end

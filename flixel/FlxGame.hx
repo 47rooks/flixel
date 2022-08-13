@@ -722,8 +722,10 @@ class FlxGame extends Sprite
 	 */
 	function update():Void
 	{
+		#if FLX_MULTI_WINDOW
 		if (FlxG.renderingWindow == null)
 		{
+		#end
 			if (!_state.active || !_state.exists)
 				return;
 
@@ -752,17 +754,23 @@ class FlxGame extends Sprite
 			FlxG.plugins.update(FlxG.elapsed);
 
 			_state.tryUpdate(FlxG.elapsed);
+		#if FLX_MULTI_WINDOW
 		}
+		#end
+		#if FLX_MULTI_WINDOW
 		if (FlxG.renderingWindow != null)
 		{
 			FlxG.renderingWindow.cameras.update(FlxG.elapsed);
 		}
 		else
+		#end
 		{
 			FlxG.cameras.update(FlxG.elapsed);
 		}
+		#if FLX_MULTI_WINDOW
 		if (FlxG.renderingWindow == null)
 		{
+		#end
 			FlxG.signals.postUpdate.dispatch();
 
 			#if FLX_DEBUG
@@ -774,7 +782,9 @@ class FlxGame extends Sprite
 			#end
 
 			filters = filtersEnabled ? _filters : null;
+		#if FLX_MULTI_WINDOW
 		}
+		#end
 	}
 
 	function updateElapsed():Void
@@ -877,11 +887,13 @@ class FlxGame extends Sprite
 			postProcesses[0].capture();
 		#end
 
+		#if FLX_MULTI_WINDOW
 		if (FlxG.renderingWindow != null)
 		{
 			FlxG.renderingWindow.cameras.lock();
 		}
 		else
+		#end
 		{
 			FlxG.cameras.lock();
 
@@ -892,11 +904,13 @@ class FlxGame extends Sprite
 
 		if (FlxG.renderTile)
 		{
+			#if FLX_MULTI_WINDOW
 			if (FlxG.renderingWindow != null)
 			{
 				FlxG.renderingWindow.cameras.render();
 			}
 			else
+			#end
 			{
 				FlxG.cameras.render();
 			}
@@ -906,11 +920,13 @@ class FlxGame extends Sprite
 			#end
 		}
 
+		#if FLX_MULTI_WINDOW
 		if (FlxG.renderingWindow != null)
 		{
 			FlxG.renderingWindow.cameras.unlock();
 		}
 		else
+		#end
 		{
 			FlxG.cameras.unlock();
 		}

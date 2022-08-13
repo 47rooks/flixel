@@ -311,6 +311,7 @@ class FlxG
 	 */
 	public static var plugins(default, null):PluginFrontEnd;
 
+	#if FLX_MULTI_WINDOW
 	/**
 	 * Contains a list of all windows and the functions required to `add()`, `remove()` them etc.
 	 */
@@ -318,6 +319,7 @@ class FlxG
 
 	@:allow(flixel.FlxWindow)
 	public static var renderingWindow(default, null):Null<FlxWindow> = null;
+	#end
 
 	public static var initialWidth(default, null):Int = 0;
 	public static var initialHeight(default, null):Int = 0;
@@ -625,7 +627,9 @@ class FlxG
 		sound = new SoundFrontEnd();
 		#end
 
+		#if FLX_MULTI_WINDOW
 		windows = new FlxWindowManager();
+		#end
 	}
 
 	static function initRenderMethod():Void

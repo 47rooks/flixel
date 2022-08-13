@@ -640,7 +640,6 @@ class FlxCamera extends FlxBasic
 		return itemToReturn;
 	}
 
-	@:allow(flixel.system.frontEnds.CameraFrontEndWin)
 	@:allow(flixel.system.frontEnds.CameraFrontEnd)
 	function clearDrawStack():Void
 	{
@@ -674,7 +673,6 @@ class FlxCamera extends FlxBasic
 		_headTriangles = null;
 	}
 
-	@:allow(flixel.system.frontEnds.CameraFrontEndWin)
 	@:allow(flixel.system.frontEnds.CameraFrontEnd)
 	function render():Void
 	{
@@ -1564,7 +1562,6 @@ class FlxCamera extends FlxBasic
 	/**
 	 * Internal helper function, handles the actual drawing of all the special effects.
 	 */
-	@:allow(flixel.system.frontEnds.CameraFrontEndWin)
 	@:allow(flixel.system.frontEnds.CameraFrontEnd)
 	function drawFX():Void
 	{
@@ -1601,7 +1598,6 @@ class FlxCamera extends FlxBasic
 		}
 	}
 
-	@:allow(flixel.system.frontEnds.CameraFrontEndWin)
 	@:allow(flixel.system.frontEnds.CameraFrontEnd)
 	function checkResize():Void
 	{
@@ -1754,7 +1750,6 @@ class FlxCamera extends FlxBasic
 	{
 		if (rect == null)
 			rect = FlxRect.get();
-
 		return rect.set(viewOffsetX, viewOffsetY, viewOffsetWidth - viewOffsetX, viewOffsetHeight - viewOffsetY);
 	}
 

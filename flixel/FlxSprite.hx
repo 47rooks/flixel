@@ -776,15 +776,17 @@ class FlxSprite extends FlxObject
 
 		for (camera in cameras)
 		{
-			if (!camera.visible
-				|| !camera.exists
-				|| !isOnScreen(camera)
-				|| (FlxG.renderingWindow != null && !FlxG.renderingWindow.cameras.list.contains(camera))
-				|| (FlxG.renderingWindow == null && !FlxG.cameras.list.contains(camera)))
+			if (!camera.visible || !camera.exists || !isOnScreen(camera))
 			{
 				continue;
 			}
-
+			#if FLX_MULTI_WINDOW
+			if (FlxG.renderingWindow != null
+				&& !FlxG.renderingWindow.cameras.list.contains(camera)) || (FlxG.renderingWindow == null && !FlxG.cameras.list.contains(camera))
+			{
+				continue;
+			}
+			#end
 			getScreenPosition(_point, camera).subtractPoint(offset);
 
 			if (isSimpleRender(camera))
@@ -840,15 +842,6 @@ class FlxSprite extends FlxObject
 			_matrix.tx = Math.floor(_matrix.tx);
 			_matrix.ty = Math.floor(_matrix.ty);
 		}
-		// trace('win=${FlxG.renderingWindow == null ? "main" : FlxG.renderingWindow.windowName}');
-		// trace('    thiswindowscamera=${FlxG.renderingWindow != null ? FlxG.renderingWindow.cameras.list.contains(camera) : FlxG.cameras.list.contains(camera)}');
-		// trace('    _frame=${_frame}');
-		// trace('    framePixels=${framePixels}');
-		// trace('    _matrix=${_matrix}');
-		// trace('    colorTransform=${colorTransform}');
-		// trace('    blend=${blend}');
-		// trace('    antialiasing=${antialiasing}');
-		// trace('    shader=${shader}');
 		camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shader);
 	}
 

@@ -158,6 +158,7 @@ class CameraFrontEnd
 		while (list.length > 0)
 			remove(list[0]);
 
+		#if FLX_MULTI_WINDOW
 		if (_window != null)
 		{
 			if (NewCamera == null)
@@ -170,6 +171,7 @@ class CameraFrontEnd
 		}
 		else
 		{
+		#end
 			if (NewCamera == null)
 			{
 				NewCamera = new FlxCamera(0, 0, FlxG.width, FlxG.height);
@@ -179,7 +181,9 @@ class CameraFrontEnd
 			NewCamera.ID = 0;
 
 			FlxCamera._defaultCameras = defaults;
+		#if FLX_MULTI_WINDOW
 		}
+		#end
 	}
 
 	/**
