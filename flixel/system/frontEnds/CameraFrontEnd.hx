@@ -165,7 +165,7 @@ class CameraFrontEnd
 				NewCamera = new FlxCamera(0, 0, _window.windowWidth, _window.windowHeight);
 			}
 
-			_window.addCamera(NewCamera);
+			_window.camera = _window.cameras.add(NewCamera);
 			NewCamera.ID = 0;
 		}
 		else

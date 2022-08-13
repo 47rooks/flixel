@@ -782,7 +782,6 @@ class FlxSprite extends FlxObject
 				|| (FlxG.renderingWindow != null && !FlxG.renderingWindow.cameras.list.contains(camera))
 				|| (FlxG.renderingWindow == null && !FlxG.cameras.list.contains(camera)))
 			{
-				// trace('${FlxG.renderingWindow == null ? "null" : FlxG.renderingWindow.windowName} skipping camera');
 				continue;
 			}
 

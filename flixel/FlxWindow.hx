@@ -16,19 +16,17 @@ import openfl.events.Event;
 /*
 	TODO
 
-	IMPORTANT - 7 (RVW), 6, 8 (RSLVD), 18 (RSLVD)
+	IMPORTANT - 23 and 24, then 22, then 15
 
-	9. When a non-main window is closed should all its cameras be removed from all sprites in the game ?
-	10. onClose() does not cleanup any FlxSprite which has cameras from the window in their list of cameras.
-		a. what happens if a camera goes away that is referenced by a sprite. I bet it doesn't go away because of the reference - but it cannot draw anywhere - does that cause issues ?
 	15. cursor should be visible in all windows - or at least be able to be - not all at once but whichever window the mouse is over
+			I don't know that you need the curosr but mouse position and clicks should work.
 
-	20. Remove all @:access metadata and if necessary replace within flixel with @:allow. If not possible we have a problem.
 	21. How to test and what tests to add.
 	22. How can a secondary window receive focus and process input ? When it gets focus the main window is paused.
 			probably need to set FlxG.autoPause = false explicitly for this to work. Add to demo.
-	23. _camera should be like the camera in FlxGame, so probably public
 	24. When you access the lime.ui.window in FlxG you go FlxG.game.stage.window. In FlxWindow it should be the same.
+	27. Add docs
+	28. Make sure we have #if FLX_MULTI_WINDOW everywhere we need it
 
 	Resolved
 	6. resize on FlxWindows doesn't work - camera doesn't resize
@@ -45,6 +43,12 @@ import openfl.events.Event;
 
 		For now, this will be a manual exercise for the user. This means the user basically has to restart the game actually.
 
+	9. When a non-main window is closed should all its cameras be removed from all sprites in the game ?
+	10. onClose() does not cleanup any FlxSprite which has cameras from the window in their list of cameras.
+		a. what happens if a camera goes away that is referenced by a sprite. I bet it doesn't go away because of the reference - but it cannot draw anywhere - does that cause issues ?
+
+		Currently FlxWindow.destroy() blows away all cameras but sprites will still have references to the cameras but draw() will never be called for these cameras because that is done in the ENTER_FRAME callback which is removed with the window removal. It would be neater to cleanup the references but you have to search every FlxBasic, unless we maintain a list on the cameras. Seek comment from reviewers - the test app does not crash with this approach. Are there any problems ?
+
 	19. Do default cameras need to be modified so that a default camera could be in any window ? Or should all FlxWindow cameras be non-default ? The latter is probably easier but might not be what people expect
 
 		All window cameras are non-default
@@ -53,6 +57,9 @@ import openfl.events.Event;
 		See if any reviewer says anything but this sounds ok.
 
 		See 25 below - due to the way things are wired up right now this is just plain hard to get to work properly. I think FlxG.scaleMode should be made to be per-window but that's additional work.
+
+	20. Remove all @:access metadata and if necessary replace within flixel with @:allow. If not possible we have a problem. And we have a problem - the @:access for the shader.__context field in FlxDrawQuadsItem
+		Need input from reviewers on this one - see point 7 above
 
 	25. there is some problem with camera walls but I am not if it is due to the window mod.
 		ok so this is unexpected - when you create a camera wall it creates 4 tileblocks around the camera - fine. These are sprites and they are therefore on the default camera, but they are transparent. But if the window of the default camera is not big enough that the tiles can be visible they they get truncated or not displayed somehow. I don't know how yet. But my main window was narrow - 400 px. The walls were created about cameras in other wider windows. This resulted in just the left and part of the top and bottom of the walls rendering. This led to my blocks that I was bouncing around the windows being able to escape on the right sides or the top and bottom beyond 400px. Now I have to figure out how to fix it but that's the basic issue.
@@ -95,7 +102,7 @@ class FlxWindow extends Sprite
 	 */
 	public var cameras(default, null):CameraFrontEnd;
 
-	public var _camera:FlxCamera;
+	public var camera:FlxCamera;
 
 	/**
 	 * Create a new window at x, y with size width and height.
@@ -200,8 +207,8 @@ class FlxWindow extends Sprite
 		cfew.bgColor = FlxColor.TRANSPARENT;
 		cameras = cfew;
 
-		_camera = new FlxCamera(0, 0, windowWidth, windowHeight);
-		cameras.add(_camera, false);
+		camera = new FlxCamera(0, 0, windowWidth, windowHeight);
+		cameras.add(camera, false);
 
 		addEventListener(Event.DEACTIVATE, onFocusLost);
 		addEventListener(Event.ACTIVATE, onFocus);
@@ -221,11 +228,6 @@ class FlxWindow extends Sprite
 		FlxG.renderingWindow = null;
 	}
 
-	public function addCamera(camera:FlxCamera):Void
-	{
-		cameras.add(camera, false);
-	}
-
 	/**
 	 * Remove the window from the window manager when it is closed.
 	 * TODO - this does not cleanup any FlxSprite which have cameras from the window in their list of cameras.
@@ -234,7 +236,18 @@ class FlxWindow extends Sprite
 	{
 		removeEventListener(Event.DEACTIVATE, onFocusLost);
 		removeEventListener(Event.ACTIVATE, onFocus);
+		stage.removeEventListener(Event.ENTER_FRAME, onEnterFrame);
+
+		// Note that any FlxSprites with references to this camera will still have it
+		// and the camera will not actually be removed from memory but the window will
+		// and the CameraFrontEnd will no longer them.
+		cameras.reset();
+		cameras = null;
+		camera.destroy();
+		camera = null;
+
 		stage.removeChild(_inputContainer);
+
 		FlxG.windows.remove(this);
 	}
 
@@ -250,14 +263,7 @@ class FlxWindow extends Sprite
 
 	public function destroy():Void
 	{
-		// FIXME Is this safe ?
-		// while (cameras.list.length > 0)
-		// {
-		// 	var c = cameras.list.pop();
-		// 	c.destroy();
-		// }
-
-		// FIXME Need to figure out removal order for sprites
-		// removeChild(_inputContainer);
+		// Just close the lime window and the onClose callback will take care of the rest
+		window.close();
 	}
 }
