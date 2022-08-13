@@ -12,7 +12,6 @@ import openfl.display.StageAlign;
 import openfl.display.StageScaleMode;
 import openfl.events.Event;
 
-// import flixel.system.frontEnds.CameraFrontEndWin;
 /*
 	TODO
 
@@ -202,7 +201,6 @@ class FlxWindow extends Sprite
 		addChild(_inputContainer);
 
 		// Setup the front end and default camera
-		// var cfew = new CameraFrontEndWin(this);
 		var cfew = new CameraFrontEnd(this);
 		cfew.bgColor = FlxColor.TRANSPARENT;
 		cameras = cfew;
