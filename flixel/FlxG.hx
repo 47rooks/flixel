@@ -625,7 +625,7 @@ class FlxG
 		sound = new SoundFrontEnd();
 		#end
 
-		#if FLX_MULTI_WINDOW
+		#if (FLX_MULTI_WINDOW && desktop)
 		windows = new FlxWindowManager();
 		#end
 	}

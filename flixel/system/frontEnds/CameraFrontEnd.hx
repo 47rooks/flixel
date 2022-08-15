@@ -158,7 +158,7 @@ class CameraFrontEnd
 		while (list.length > 0)
 			remove(list[0]);
 
-		#if FLX_MULTI_WINDOW
+		#if (FLX_MULTI_WINDOW && desktop)
 		if (_window != null)
 		{
 			if (NewCamera == null)
@@ -181,7 +181,7 @@ class CameraFrontEnd
 			NewCamera.ID = 0;
 
 			FlxCamera._defaultCameras = defaults;
-		#if FLX_MULTI_WINDOW
+		#if (FLX_MULTI_WINDOW && desktop)
 		}
 		#end
 	}

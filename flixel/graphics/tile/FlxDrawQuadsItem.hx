@@ -132,7 +132,7 @@ class FlxDrawQuadsItem extends FlxDrawBaseItem<FlxDrawQuadsItem>
 
 		setParameterValue(shader.hasTransform, true);
 		setParameterValue(shader.hasColorTransform, colored || hasColorOffsets);
-		#if FLX_MULTI_WINDOW
+		#if (FLX_MULTI_WINDOW && desktop)
 		if (FlxG.renderingWindow != null)
 		{
 			var ctxSameAsCurrent = FlxG.renderingWindow.stage.context3D == shader.__context;

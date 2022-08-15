@@ -25,7 +25,6 @@ import openfl.events.Event;
 			probably need to set FlxG.autoPause = false explicitly for this to work. Add to demo.
 	24. When you access the lime.ui.window in FlxG you go FlxG.game.stage.window. In FlxWindow it should be the same.
 	27. Add docs
-	28. Make sure we have #if FLX_MULTI_WINDOW everywhere we need it
 
 	Resolved
 	6. resize on FlxWindows doesn't work - camera doesn't resize
@@ -127,7 +126,6 @@ class FlxWindow extends Sprite
 	{
 		super();
 
-		trace('creating a flixel FlxWindow ${name}');
 		windowWidth = width;
 		windowHeight = height;
 		_initialX = x;
@@ -178,19 +176,12 @@ class FlxWindow extends Sprite
 
 	function create(_):Void
 	{
-		trace('create called stage=${stage}');
 		var ctxSame = stage.context3D == FlxG.game.stage.context3D;
-		trace('context3D matchs main window=${ctxSame}');
 		removeEventListener(Event.ADDED_TO_STAGE, create);
 		if (stage == null)
 		{
-			trace('stage is null');
 			return;
 		}
-
-		trace('my stage is :');
-		trace(stage);
-		trace('render tile = ${FlxG.renderTile}');
 
 		// Set up the view window and double buffering
 		stage.scaleMode = StageScaleMode.NO_SCALE;
@@ -249,15 +240,9 @@ class FlxWindow extends Sprite
 		FlxG.windows.remove(this);
 	}
 
-	function onFocus(_):Void
-	{
-		trace('focus on win ${windowName}');
-	}
+	function onFocus(_):Void {}
 
-	function onFocusLost(_):Void
-	{
-		trace('focus lost on win ${windowName}');
-	}
+	function onFocusLost(_):Void {}
 
 	public function destroy():Void
 	{

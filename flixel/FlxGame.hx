@@ -722,7 +722,7 @@ class FlxGame extends Sprite
 	 */
 	function update():Void
 	{
-		#if FLX_MULTI_WINDOW
+		#if (FLX_MULTI_WINDOW && desktop)
 		if (FlxG.renderingWindow == null)
 		{
 		#end
@@ -754,10 +754,10 @@ class FlxGame extends Sprite
 			FlxG.plugins.update(FlxG.elapsed);
 
 			_state.tryUpdate(FlxG.elapsed);
-		#if FLX_MULTI_WINDOW
+		#if (FLX_MULTI_WINDOW && desktop)
 		}
 		#end
-		#if FLX_MULTI_WINDOW
+		#if (FLX_MULTI_WINDOW && desktop)
 		if (FlxG.renderingWindow != null)
 		{
 			FlxG.renderingWindow.cameras.update(FlxG.elapsed);
@@ -767,7 +767,7 @@ class FlxGame extends Sprite
 		{
 			FlxG.cameras.update(FlxG.elapsed);
 		}
-		#if FLX_MULTI_WINDOW
+		#if (FLX_MULTI_WINDOW && desktop)
 		if (FlxG.renderingWindow == null)
 		{
 		#end
@@ -782,7 +782,7 @@ class FlxGame extends Sprite
 			#end
 
 			filters = filtersEnabled ? _filters : null;
-		#if FLX_MULTI_WINDOW
+		#if (FLX_MULTI_WINDOW && desktop)
 		}
 		#end
 	}
@@ -887,7 +887,7 @@ class FlxGame extends Sprite
 			postProcesses[0].capture();
 		#end
 
-		#if FLX_MULTI_WINDOW
+		#if (FLX_MULTI_WINDOW && desktop)
 		if (FlxG.renderingWindow != null)
 		{
 			FlxG.renderingWindow.cameras.lock();
@@ -904,7 +904,7 @@ class FlxGame extends Sprite
 
 		if (FlxG.renderTile)
 		{
-			#if FLX_MULTI_WINDOW
+			#if (FLX_MULTI_WINDOW && desktop)
 			if (FlxG.renderingWindow != null)
 			{
 				FlxG.renderingWindow.cameras.render();
@@ -920,7 +920,7 @@ class FlxGame extends Sprite
 			#end
 		}
 
-		#if FLX_MULTI_WINDOW
+		#if (FLX_MULTI_WINDOW && desktop)
 		if (FlxG.renderingWindow != null)
 		{
 			FlxG.renderingWindow.cameras.unlock();

@@ -47,12 +47,9 @@ class FlxWindowManager
 	public function remove(window:FlxWindow, destroy:Bool = true):Void
 	{
 		var index:Int = list.indexOf(window);
-		trace('index=${index}');
 		if (window != null && index != -1)
 		{
-			trace('about to remove window');
 			window.window.stage.removeChild(window);
-			trace('removing window from list');
 			list.remove(window);
 		}
 		else
